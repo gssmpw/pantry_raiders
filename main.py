@@ -19,6 +19,9 @@ class HomeScreen(Screen):
     def go_to_list(self):
         self.manager.current = "list"
 
+    def go_to_scanOptions(self):
+        self.manager.current = "scanOptions"
+
 
 class PantryScreen(Screen):
     def on_enter(self):
@@ -45,6 +48,45 @@ class ListScreen(Screen):
         # Update a label defined in the .kv file using its id
         self.ids.result_label.text = "Generating List..."
 
+
+class ScanOptionsScreen(Screen):
+    def on_enter(self):
+        print("ScanOptions screen entered")
+
+    def go_back(self):
+        self.manager.current = "home"
+
+    def picture_button_press(self):
+        self.manager.current = "scanPicture"
+    
+    def receipt_button_press(self):
+        self.manager.current = "scanReceipt"
+
+
+class ScanPictureScreen(Screen):
+    def on_enter(self):
+        print("ScanPicture screen entered")
+        self.ids.result_label.text = "Take a Picture of Your Pantry"
+
+    def go_back(self):
+        self.manager.current = "scanOptions"
+
+    def on_button_press(self):
+        # Update a label defined in the .kv file using its id
+        self.ids.result_label.text = "Picture Scan In Progress..."
+
+
+class ScanReceiptScreen(Screen):
+    def on_enter(self):
+        print("ScanReceipt screen entered")
+        self.ids.result_label.text = "Take a Picture of Your Receipt"
+
+    def go_back(self):
+        self.manager.current = "scanOptions"
+
+    def on_button_press(self):
+        # Update a label defined in the .kv file using its id
+        self.ids.result_label.text = "Receipt Scan In Progress..."
 
 
 # --- Root Widget ---

@@ -7,6 +7,12 @@
             name: "pantry"
         ListScreen:
             name: "list"
+        ScanOptionsScreen:
+            name: "scanOptions"
+        ScanPictureScreen:
+            name: "scanPicture"
+        ScanReceiptScreen:
+            name: "scanReceipt"
 
 # HomeScreen layout
 <HomeScreen>:
@@ -19,15 +25,24 @@
             text: "Welcome To Pantry Raiders!"
             font_size: 32
 
+        # Pantry Button
         Button:
             text: "Go to Your Pantry"
             size_hint: (1, 0.2)
             on_press: root.go_to_pantry()  # calls method on HomeScreen
-        
+
+        # Grocery List Button        
         Button:
             text: "Go to Your Grocery List"
             size_hint: (1, 0.2)
             on_press: root.go_to_list()  # calls method on HomeScreen
+
+        # Scan Options Button
+        Button:
+            text: "Scan Your Items"
+            size_hint: (1, 0.2)
+            on_press: root.go_to_scanOptions()  # calls method on HomeScreen
+
 
 # PantryScreen layout
 <PantryScreen>:
@@ -42,14 +57,15 @@
             font_size: 28
 
         Button:
-            text: "Press Me"
+            text: "Show Pantry"
             size_hint: (1, 0.2)
-            on_press: root.on_button_press()  # calls method on DetailsScreen
+            on_press: root.on_button_press()  # calls method on PantryScreen
 
         Button:
             text: "Go Back"
             size_hint: (1, 0.2)
             on_press: root.go_back()
+
 
 # ListScreen layout
 <ListScreen>:
@@ -64,9 +80,83 @@
             font_size: 28
 
         Button:
-            text: "Press Me"
+            text: "Show Grocery List"
             size_hint: (1, 0.2)
-            on_press: root.on_button_press()  # calls method on DetailsScreen
+            on_press: root.on_button_press()  # calls method on ListScreen
+
+        Button:
+            text: "Go Back"
+            size_hint: (1, 0.2)
+            on_press: root.go_back()
+
+
+# ScanOptionsScreen layout
+<ScanOptionsScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: 20
+        spacing: 10
+
+        Label:
+            id: result_label         # accessed in Python via self.ids.result_label
+            text: "Choose What to Scan"
+            font_size: 28
+
+        Button:
+            text: "Picture of Your Pantry"
+            size_hint: (1, 0.2)
+            on_press: root.picture_button_press()  # calls method on ScanOptionsScreen
+
+        Button:
+            text: "Picture of Receipt"
+            size_hint: (1, 0.2)
+            on_press: root.receipt_button_press()  # calls method on ScanOptionsScreen
+
+        Button:
+            text: "Go Back"
+            size_hint: (1, 0.2)
+            on_press: root.go_back()
+
+
+# ScanPictureScreen layout
+<ScanPictureScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: 20
+        spacing: 10
+
+        Label:
+            id: result_label         # accessed in Python via self.ids.result_label
+            text: "Take a Picture of Your Pantry"
+            font_size: 28
+
+        Button:
+            text: "Take Picture"
+            size_hint: (1, 0.2)
+            on_press: root.on_button_press()  # calls method on ScanPictureScreen
+
+        Button:
+            text: "Go Back"
+            size_hint: (1, 0.2)
+            on_press: root.go_back()
+
+
+# ScanReceiptScreen layout
+<ScanReceiptScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: 20
+        spacing: 10
+
+        Label:
+            id: result_label         # accessed in Python via self.ids.result_label
+            text: "Take a Picture of Your Receipt"
+            font_size: 28
+
+        Button:
+            text: "Take Picture"
+            size_hint: (1, 0.2)
+            on_press: root.on_button_press()  # calls method on ScanReceiptScreen
 
         Button:
             text: "Go Back"
