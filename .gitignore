@@ -1,0 +1,4 @@
+# .gitignore
+grocery_dataset/
+runs/
+fiftyone/
