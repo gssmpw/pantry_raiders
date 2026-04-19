@@ -72,10 +72,6 @@ val_dataset.export(
     classes=MY_CLASSES,
 )
 
-print("Done! Counts:")
-print("Train:", train_dataset.count_values("ground_truth.detections.label"))
-print("Val:", val_dataset.count_values("ground_truth.detections.label"))
-
 # --- TRAIN ---
 model = YOLO("yolov8n.yaml")
 model.train(
