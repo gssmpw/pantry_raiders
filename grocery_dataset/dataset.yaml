@@ -1,0 +1,8 @@
+names:
+  0: Apple
+  1: Banana
+  2: Bread
+  3: Milk
+path: C:\Users\gsmit\Documents\pantry_raiders\grocery_dataset
+train: .\images\train\
+val: .\images\val\
