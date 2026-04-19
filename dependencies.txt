@@ -1,0 +1,2 @@
+kivy
+Python 3.11
