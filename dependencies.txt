@@ -4,3 +4,6 @@ fiftyone
 ultralytics
 torch
 torchvision
+fastapi
+sqlalchemy
+uvicorn
