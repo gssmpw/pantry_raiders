@@ -7,3 +7,5 @@ torchvision
 fastapi
 sqlalchemy
 uvicorn
+python-multipart
+requests

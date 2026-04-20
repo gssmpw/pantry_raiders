@@ -1,7 +1,9 @@
+from urllib import response
+
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
-
+import requests
 
 # --- Screens ---
 # Each Screen class maps to a matching <ScreenName> rule in the .kv file.
@@ -26,14 +28,49 @@ class HomeScreen(Screen):
 class PantryScreen(Screen):
     def on_enter(self):
         print("Pantry screen entered")
-        self.ids.result_label.text = "Pantry Inventory"
+        self.load_pantry()
 
     def go_back(self):
         self.manager.current = "home"
 
     def on_button_press(self):
-        # Update a label defined in the .kv file using its id
-        self.ids.result_label.text = "Generating Inventory..."
+        self.ids.result_label.text = "Sending request to backend..."
+
+        try:
+            files = {"file": ("image.jpg", b"fakeimage")}
+
+            response = requests.post("http://127.0.0.1:8000/scan", files=files)
+
+            if response.status_code == 200:
+                data = response.json()
+
+                # Show what backend detected
+                detected = ", ".join(data["items_detected"])
+                self.ids.result_label.text = f"Detected: {detected}"
+
+                # Load pantry after short delay
+                self.load_pantry()
+
+            else:
+                self.ids.result_label.text = "Error calling backend"
+
+        except Exception as e:
+            self.ids.result_label.text = f"Error: {str(e)}"
+
+    def load_pantry(self):
+        response = requests.get("http://127.0.0.1:8000/pantry")
+
+        if response.status_code == 200:
+            items = response.json()
+
+            if not items:
+                self.ids.result_label.text = "Pantry is empty"
+                return
+
+            text = "Pantry:\n"
+            text += "\n".join([f"{i['name']} x{i['quantity']}" for i in items])
+
+            self.ids.result_label.text = text
 
 
 class ListScreen(Screen):
@@ -72,8 +109,28 @@ class ScanPictureScreen(Screen):
         self.manager.current = "scanOptions"
 
     def on_button_press(self):
-        # Update a label defined in the .kv file using its id
-        self.ids.result_label.text = "Picture Scan In Progress..."
+        self.ids.result_label.text = "Sending request to backend..."
+
+        try:
+            files = {"file": ("image.jpg", b"fakeimage")}
+
+            response = requests.post("http://127.0.0.1:8000/scan", files=files)
+
+            if response.status_code == 200:
+                data = response.json()
+
+                # Show what backend detected
+                detected = ", ".join(data["items_detected"])
+                self.ids.result_label.text = f"Detected: {detected}"
+
+                # Load pantry after short delay
+                self.manager.current = "pantry"
+
+            else:
+                self.ids.result_label.text = "Scan Failed"
+
+        except Exception as e:
+            self.ids.result_label.text = f"Error: {str(e)}"
 
 
 class ScanReceiptScreen(Screen):
