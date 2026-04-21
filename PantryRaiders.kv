@@ -1,6 +1,8 @@
 # RootWidget holds the ScreenManager
 <RootWidget>:
     ScreenManager:
+        LoginScreen:
+            name: "login"
         HomeScreen:
             name: "home"
         PantryScreen:
@@ -13,6 +15,102 @@
             name: "scanPicture"
         ScanReceiptScreen:
             name: "scanReceipt"
+
+<LoginScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: 40
+        spacing: 20
+
+        Label:
+            text: "Pantry Raiders"
+            font_size: 48
+            bold: True
+            size_hint: (1, 0.25)
+
+        Label:
+            text: "Sign in to continue"
+            font_size: 16
+            size_hint: (1, 0.1)
+
+        BoxLayout:
+            orientation: "vertical"
+            spacing: 15
+            size_hint: (1, 0.55)
+
+            BoxLayout:
+                orientation: "vertical"
+                spacing: 4
+                size_hint: (1, None)
+                height: 70
+
+                Label:
+                    text: "USERNAME"
+                    font_size: 12
+                    halign: "left"
+                    text_size: self.size
+                    size_hint: (1, None)
+                    height: 20
+
+                TextInput:
+                    id: username_input
+                    hint_text: "Enter your username"
+                    multiline: False
+                    font_size: 16
+                    padding: [12, 10]
+                    size_hint: (1, None)
+                    height: 45
+
+            BoxLayout:
+                orientation: "vertical"
+                spacing: 4
+                size_hint: (1, None)
+                height: 70
+
+                Label:
+                    text: "PASSWORD"
+                    font_size: 12
+                    halign: "left"
+                    text_size: self.size
+                    size_hint: (1, None)
+                    height: 20
+
+                BoxLayout:
+                    orientation: "horizontal"
+                    size_hint: (1, None)
+                    height: 45
+                    spacing: 8
+
+                    TextInput:
+                        id: password_input
+                        hint_text: "Enter your password"
+                        password: True
+                        multiline: False
+                        font_size: 16
+                        padding: [12, 10]
+
+                    Button:
+                        id: toggle_btn
+                        text: "Show"
+                        size_hint: (None, 1)
+                        width: 70
+                        font_size: 13
+                        on_press: root.toggle_password()
+
+            Label:
+                id: error_label
+                text: ""
+                font_size: 13
+                size_hint: (1, None)
+                height: 20
+
+            Button:
+                text: "LOG IN"
+                font_size: 16
+                bold: True
+                size_hint: (1, None)
+                height: 50
+                on_press: root.validate_login()
 
 # HomeScreen layout
 <HomeScreen>:
@@ -57,7 +155,7 @@
             font_size: 28
 
         Button:
-            text: "Show Pantry"
+            text: "Refresh Pantry"
             size_hint: (1, 0.2)
             on_press: root.on_button_press()  # calls method on PantryScreen
 

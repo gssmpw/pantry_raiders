@@ -3,11 +3,38 @@ from urllib import response
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.clock import Clock
 import requests
 
 # --- Screens ---
 # Each Screen class maps to a matching <ScreenName> rule in the .kv file.
 # You generally keep logic here and layout in .kv
+class LoginScreen(Screen):
+
+    def validate_login(self):
+        username = self.ids.username_input.text.strip()
+        password = self.ids.password_input.text.strip()
+        error_label = self.ids.error_label
+
+        if not username or not password:
+            error_label.text = "Please fill in all fields."
+            return
+
+        if username == "admin" and password == "1234":
+            error_label.text = ""
+            self.manager.current = "home"
+        else:
+            error_label.text = "Invalid username or password."
+
+    def toggle_password(self):
+        field = self.ids.password_input
+        btn = self.ids.toggle_btn
+        if field.password:
+            field.password = False
+            btn.text = "Hide"
+        else:
+            field.password = True
+            btn.text = "Show"
 
 class HomeScreen(Screen):
     def on_enter(self):
@@ -58,19 +85,21 @@ class PantryScreen(Screen):
             self.ids.result_label.text = f"Error: {str(e)}"
 
     def load_pantry(self):
-        response = requests.get("http://127.0.0.1:8000/pantry")
-
-        if response.status_code == 200:
-            items = response.json()
-
-            if not items:
-                self.ids.result_label.text = "Pantry is empty"
-                return
-
-            text = "Pantry:\n"
-            text += "\n".join([f"{i['name']} x{i['quantity']}" for i in items])
-
-            self.ids.result_label.text = text
+        try:
+            response = requests.get("http://127.0.0.1:8000/pantry")
+            if response.status_code == 200:
+                items = response.json()
+                if not items:
+                    self.ids.result_label.text = "Pantry is empty"
+                    return
+                text = "Pantry:\n"
+                text += "\n".join([f"{i['name']} x{i['quantity']}" for i in items])
+                self.ids.result_label.text = text
+            else:
+                self.ids.result_label.text = "Server error"
+        except Exception as e:
+            self.ids.result_label.text = "Could not connect to server"
+            print(f"Backend error: {e}")
 
 
 class ListScreen(Screen):
@@ -124,7 +153,7 @@ class ScanPictureScreen(Screen):
                 self.ids.result_label.text = f"Detected: {detected}"
 
                 # Load pantry after short delay
-                self.manager.current = "pantry"
+                Clock.schedule_once(lambda dt: setattr(self.manager, 'current', 'pantry'), 1.5)
 
             else:
                 self.ids.result_label.text = "Scan Failed"
