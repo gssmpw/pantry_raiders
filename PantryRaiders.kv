@@ -1,3 +1,7 @@
+#:import Color kivy.graphics.Color
+#:import Rectangle kivy.graphics.Rectangle
+#:import RoundedRectangle kivy.graphics.RoundedRectangle
+
 # RootWidget holds the ScreenManager
 <RootWidget>:
     ScreenManager:
@@ -16,64 +20,69 @@
         ScanReceiptScreen:
             name: "scanReceipt"
 
+
 <LoginScreen>:
     BoxLayout:
         orientation: "vertical"
-        padding: 40
-        spacing: 20
+        padding: [30, 40, 30, 40]
+        spacing: 18
 
-        Label:
-            text: "Pantry Raiders"
-            font_size: 48
-            bold: True
-            size_hint: (1, 0.25)
+        canvas.before:
+            RoundedRectangle:
+                pos: self.pos
+                size: self.size
+                radius: [20,]
+                source:'../frontendImages/PantryRaidersImage.png'
 
-        Label:
-            text: "Sign in to continue"
-            font_size: 16
-            size_hint: (1, 0.1)
-
-        BoxLayout:
-            orientation: "vertical"
-            spacing: 15
-            size_hint: (1, 0.55)
+        AnchorLayout:
+            anchor_x: "center"
+            anchor_y: "bottom"
 
             BoxLayout:
                 orientation: "vertical"
-                spacing: 4
-                size_hint: (1, None)
-                height: 70
+                spacing: 16
+                padding: [24, 24, 24, 24]
+                size_hint: (None, None)
+                width: min(root.width * 0.55, 520)
+                height: min(root.height * 0.45, 400)
+
+                canvas.before:
+                    Color:
+                        rgba: 0.98, 0.99, 0.94, 0
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [25]
 
                 Label:
                     text: "USERNAME"
-                    font_size: 12
+                    font_size: min(root.width * 0.014, 40)
+                    bold: True
+                    color: 0.15, 0.35, 0.22, 1
                     halign: "left"
-                    text_size: self.size
+                    valign: "middle"
+                    text_size: self.width, None
                     size_hint: (1, None)
-                    height: 20
-
+                    height: self.font_size + 18
                 TextInput:
                     id: username_input
                     hint_text: "Enter your username"
                     multiline: False
-                    font_size: 16
+                    font_size: min(root.width * 0.018, 22)
                     padding: [12, 10]
                     size_hint: (1, None)
-                    height: 45
-
-            BoxLayout:
-                orientation: "vertical"
-                spacing: 4
-                size_hint: (1, None)
-                height: 70
+                    height: self.font_size + 30
 
                 Label:
                     text: "PASSWORD"
-                    font_size: 12
+                    font_size: min(root.width * 0.014, 40)
+                    bold: True
+                    color: 0.15, 0.35, 0.22, 1
                     halign: "left"
-                    text_size: self.size
+                    valign: "middle"
+                    text_size: self.width, None
                     size_hint: (1, None)
-                    height: 20
+                    height: self.font_size + 18
 
                 BoxLayout:
                     orientation: "horizontal"
@@ -86,177 +95,267 @@
                         hint_text: "Enter your password"
                         password: True
                         multiline: False
-                        font_size: 16
+                        font_size: min(root.width * 0.018, 22)
                         padding: [12, 10]
 
                     Button:
                         id: toggle_btn
                         text: "Show"
                         size_hint: (None, 1)
-                        width: 70
-                        font_size: 13
+                        width: 75
+                        font_size: min(root.width * 0.014, 22)
+                        background_color: 0.35, 0.18, 0.05, 1
                         on_press: root.toggle_password()
 
-            Label:
-                id: error_label
-                text: ""
-                font_size: 13
-                size_hint: (1, None)
-                height: 20
+                Label:
+                    id: error_label
+                    text: ""
+                    font_size: min(root.width * 0.014, 13)
+                    color: 0.9, 0.1, 0.1, 1
+                    size_hint: (1, None)
+                    height: 20
 
-            Button:
-                text: "LOG IN"
-                font_size: 16
-                bold: True
-                size_hint: (1, None)
-                height: 50
-                on_press: root.validate_login()
+                Button:
+                    text: "LOG IN"
+                    font_size: min(root.width * 0.018, 40)
+                    bold: True
+                    size_hint: (1, None)
+                    height: self.font_size + 28
+                    background_color: 0.08, 0.25, 0.16, 1
+                    on_press: root.validate_login()
 
-# HomeScreen layout
+
 <HomeScreen>:
     BoxLayout:
         orientation: "vertical"
-        padding: 20
-        spacing: 10
+        padding: 30
+        spacing: 20
+
+        canvas.before:
+            Color:
+                rgba: 0.96, 0.98, 0.88, 1
+            RoundedRectangle:
+                pos: self.pos
+                size: self.size
+                radius: [20,]
 
         Label:
-            text: "Welcome To Pantry Raiders!"
-            font_size: 32
+            text: "Welcome to Pantry Raiders!"
+            font_size: 75
+            bold: True
+            color: 0.10, 0.30, 0.16, 1
+            size_hint: (1, 0.25)
+            pos_hint: {"center_x": 0.5}
 
-        # Pantry Button
+
         Button:
-            text: "Go to Your Pantry"
-            size_hint: (1, 0.2)
-            on_press: root.go_to_pantry()  # calls method on HomeScreen
+            size_hint: (0.75, 0.18)
+            pos_hint: {"center_x": 0.5}
+            background_normal:'../frontendImages/ViewPantryImage.png'
+            background_stretch: False
+            background_tile: False
+            on_press: root.go_to_pantry()
 
-        # Grocery List Button        
         Button:
-            text: "Go to Your Grocery List"
-            size_hint: (1, 0.2)
-            on_press: root.go_to_list()  # calls method on HomeScreen
+            background_normal:'../frontendImages/GroceryListImage.png'
+            size_hint: (0.75, 0.18)
+            pos_hint: {"center_x": 0.5}
+            background_stretch: False
+            background_tile: False
+            on_press: root.go_to_list()
 
-        # Scan Options Button
         Button:
-            text: "Scan Your Items"
-            size_hint: (1, 0.2)
-            on_press: root.go_to_scanOptions()  # calls method on HomeScreen
+            background_normal:'../frontendImages/ScanItemsImage.png'
+            size_hint: (0.75, 0.18)
+            pos_hint: {"center_x": 0.5}
+            background_stretch: True
+            background_tile: False
+            on_press: root.go_to_scanOptions()
 
 
-# PantryScreen layout
 <PantryScreen>:
     BoxLayout:
         orientation: "vertical"
-        padding: 20
-        spacing: 10
+        padding: 30
+        spacing: 18
+
+        canvas.before:
+            Color:
+                rgba: 0.90, 0.97, 0.90, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
 
         Label:
-            id: result_label         # accessed in Python via self.ids.result_label
+            id: result_label
             text: "Pantry Inventory"
             font_size: 28
+            bold: True
+            color: 0.08, 0.30, 0.15, 1
 
         Button:
             text: "Refresh Pantry"
-            size_hint: (1, 0.2)
-            on_press: root.on_button_press()  # calls method on PantryScreen
+            font_size: 20
+            bold: True
+            background_color: 0.16, 0.58, 0.31, 1
+            size_hint: (1, 0.18)
+            on_press: root.on_button_press()
 
         Button:
             text: "Go Back"
-            size_hint: (1, 0.2)
+            font_size: 18
+            background_color: 0.45, 0.45, 0.45, 1
+            size_hint: (1, 0.16)
             on_press: root.go_back()
 
 
-# ListScreen layout
 <ListScreen>:
     BoxLayout:
         orientation: "vertical"
-        padding: 20
-        spacing: 10
+        padding: 30
+        spacing: 18
+
+        canvas.before:
+            Color:
+                rgba: 0.91, 0.95, 1, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
 
         Label:
-            id: result_label         # accessed in Python via self.ids.result_label
+            id: result_label
             text: "Grocery List"
-            font_size: 28
+            font_size: 30
+            bold: True
+            color: 0.10, 0.25, 0.55, 1
 
         Button:
             text: "Show Grocery List"
-            size_hint: (1, 0.2)
-            on_press: root.on_button_press()  # calls method on ListScreen
+            font_size: 20
+            bold: True
+            background_color: 0.15, 0.42, 0.78, 1
+            size_hint: (1, 0.18)
+            on_press: root.on_button_press()
 
         Button:
             text: "Go Back"
-            size_hint: (1, 0.2)
+            font_size: 18
+            background_color: 0.45, 0.45, 0.45, 1
+            size_hint: (1, 0.16)
             on_press: root.go_back()
 
 
-# ScanOptionsScreen layout
 <ScanOptionsScreen>:
     BoxLayout:
         orientation: "vertical"
-        padding: 20
-        spacing: 10
+        padding: 30
+        spacing: 18
+
+        canvas.before:
+            Color:
+                rgba: 1, 0.95, 0.86, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
 
         Label:
-            id: result_label         # accessed in Python via self.ids.result_label
+            id: result_label
             text: "Choose What to Scan"
-            font_size: 28
+            font_size: 30
+            bold: True
+            color: 0.50, 0.25, 0.05, 1
 
         Button:
             text: "Picture of Your Pantry"
-            size_hint: (1, 0.2)
-            on_press: root.picture_button_press()  # calls method on ScanOptionsScreen
+            font_size: 20
+            bold: True
+            background_color: 0.95, 0.55, 0.18, 1
+            size_hint: (1, 0.18)
+            on_press: root.picture_button_press()
 
         Button:
             text: "Picture of Receipt"
-            size_hint: (1, 0.2)
-            on_press: root.receipt_button_press()  # calls method on ScanOptionsScreen
+            font_size: 20
+            bold: True
+            background_color: 0.70, 0.35, 0.85, 1
+            size_hint: (1, 0.18)
+            on_press: root.receipt_button_press()
 
         Button:
             text: "Go Back"
-            size_hint: (1, 0.2)
+            font_size: 18
+            background_color: 0.45, 0.45, 0.45, 1
+            size_hint: (1, 0.16)
             on_press: root.go_back()
 
 
-# ScanPictureScreen layout
 <ScanPictureScreen>:
     BoxLayout:
         orientation: "vertical"
-        padding: 20
-        spacing: 10
+        padding: 30
+        spacing: 18
+
+        canvas.before:
+            Color:
+                rgba: 0.92, 0.98, 0.95, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
 
         Label:
-            id: result_label         # accessed in Python via self.ids.result_label
+            id: result_label
             text: "Take a Picture of Your Pantry"
             font_size: 28
+            bold: True
+            color: 0.08, 0.30, 0.15, 1
 
         Button:
             text: "Take Picture"
-            size_hint: (1, 0.2)
-            on_press: root.on_button_press()  # calls method on ScanPictureScreen
+            font_size: 22
+            bold: True
+            background_color: 0.16, 0.58, 0.31, 1
+            size_hint: (1, 0.18)
+            on_press: root.on_button_press()
 
         Button:
             text: "Go Back"
-            size_hint: (1, 0.2)
+            font_size: 18
+            background_color: 0.45, 0.45, 0.45, 1
+            size_hint: (1, 0.16)
             on_press: root.go_back()
 
 
-# ScanReceiptScreen layout
 <ScanReceiptScreen>:
     BoxLayout:
         orientation: "vertical"
-        padding: 20
-        spacing: 10
+        padding: 30
+        spacing: 18
+
+        canvas.before:
+            Color:
+                rgba: 0.98, 0.93, 1, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
 
         Label:
-            id: result_label         # accessed in Python via self.ids.result_label
+            id: result_label
             text: "Take a Picture of Your Receipt"
             font_size: 28
+            bold: True
+            color: 0.35, 0.10, 0.48, 1
 
         Button:
             text: "Take Picture"
-            size_hint: (1, 0.2)
-            on_press: root.on_button_press()  # calls method on ScanReceiptScreen
+            font_size: 22
+            bold: True
+            background_color: 0.70, 0.35, 0.85, 1
+            size_hint: (1, 0.18)
+            on_press: root.on_button_press()
 
         Button:
             text: "Go Back"
-            size_hint: (1, 0.2)
+            font_size: 18
+            background_color: 0.45, 0.45, 0.45, 1
+            size_hint: (1, 0.16)
             on_press: root.go_back()

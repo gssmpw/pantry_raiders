@@ -1,5 +1,4 @@
 kivy
-Python 3.11
 fiftyone
 ultralytics
 torch

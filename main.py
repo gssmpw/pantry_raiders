@@ -1,14 +1,13 @@
-from urllib import response
-
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.screenmanager import Screen
 from kivy.clock import Clock
 import requests
 
-# --- Screens ---
-# Each Screen class maps to a matching <ScreenName> rule in the .kv file.
-# You generally keep logic here and layout in .kv
+
+API_URL = "http://127.0.0.1:8000"
+
+
 class LoginScreen(Screen):
 
     def validate_login(self):
@@ -29,6 +28,7 @@ class LoginScreen(Screen):
     def toggle_password(self):
         field = self.ids.password_input
         btn = self.ids.toggle_btn
+
         if field.password:
             field.password = False
             btn.text = "Hide"
@@ -36,13 +36,12 @@ class LoginScreen(Screen):
             field.password = True
             btn.text = "Show"
 
+
 class HomeScreen(Screen):
     def on_enter(self):
-        # Called automatically when this screen becomes active
         print("Home screen entered")
 
     def go_to_pantry(self):
-        # Navigate to another screen via the ScreenManager
         self.manager.current = "pantry"
 
     def go_to_list(self):
@@ -61,42 +60,31 @@ class PantryScreen(Screen):
         self.manager.current = "home"
 
     def on_button_press(self):
-        self.ids.result_label.text = "Sending request to backend..."
-
-        try:
-            files = {"file": ("image.jpg", b"fakeimage")}
-
-            response = requests.post("http://127.0.0.1:8000/scan", files=files)
-
-            if response.status_code == 200:
-                data = response.json()
-
-                # Show what backend detected
-                detected = ", ".join(data["items_detected"])
-                self.ids.result_label.text = f"Detected: {detected}"
-
-                # Load pantry after short delay
-                self.load_pantry()
-
-            else:
-                self.ids.result_label.text = "Error calling backend"
-
-        except Exception as e:
-            self.ids.result_label.text = f"Error: {str(e)}"
+        self.load_pantry()
 
     def load_pantry(self):
+        self.ids.result_label.text = "Loading pantry..."
+
         try:
-            response = requests.get("http://127.0.0.1:8000/pantry")
+            response = requests.get(f"{API_URL}/pantry")
+
             if response.status_code == 200:
                 items = response.json()
+
                 if not items:
                     self.ids.result_label.text = "Pantry is empty"
                     return
-                text = "Pantry:\n"
-                text += "\n".join([f"{i['name']} x{i['quantity']}" for i in items])
+
+                text = "Pantry Inventory\n\n"
+
+                for item in items:
+                    text += f"{item['name']} x{item['quantity']}\n"
+
                 self.ids.result_label.text = text
+
             else:
-                self.ids.result_label.text = "Server error"
+                self.ids.result_label.text = "Server error loading pantry"
+
         except Exception as e:
             self.ids.result_label.text = "Could not connect to server"
             print(f"Backend error: {e}")
@@ -105,14 +93,40 @@ class PantryScreen(Screen):
 class ListScreen(Screen):
     def on_enter(self):
         print("List screen entered")
-        self.ids.result_label.text = "Grocery List"
+        self.load_grocery_list()
 
     def go_back(self):
         self.manager.current = "home"
 
     def on_button_press(self):
-        # Update a label defined in the .kv file using its id
-        self.ids.result_label.text = "Generating List..."
+        self.load_grocery_list()
+
+    def load_grocery_list(self):
+        self.ids.result_label.text = "Generating grocery list..."
+
+        try:
+            response = requests.get(f"{API_URL}/grocery-list")
+
+            if response.status_code == 200:
+                items = response.json()
+
+                if not items:
+                    self.ids.result_label.text = "No grocery items needed"
+                    return
+
+                text = "Grocery List\n\n"
+
+                for item in items:
+                    text += f"{item['name']} - Buy {item['suggested_quantity']}\n"
+
+                self.ids.result_label.text = text
+
+            else:
+                self.ids.result_label.text = "Server error loading grocery list"
+
+        except Exception as e:
+            self.ids.result_label.text = "Could not connect to server"
+            print(f"Backend error: {e}")
 
 
 class ScanOptionsScreen(Screen):
@@ -124,7 +138,7 @@ class ScanOptionsScreen(Screen):
 
     def picture_button_press(self):
         self.manager.current = "scanPicture"
-    
+
     def receipt_button_press(self):
         self.manager.current = "scanReceipt"
 
@@ -138,25 +152,26 @@ class ScanPictureScreen(Screen):
         self.manager.current = "scanOptions"
 
     def on_button_press(self):
-        self.ids.result_label.text = "Sending request to backend..."
+        self.ids.result_label.text = "Scanning pantry..."
 
         try:
             files = {"file": ("image.jpg", b"fakeimage")}
 
-            response = requests.post("http://127.0.0.1:8000/scan", files=files)
+            response = requests.post(f"{API_URL}/scan/pantry", files=files)
 
             if response.status_code == 200:
                 data = response.json()
 
-                # Show what backend detected
                 detected = ", ".join(data["items_detected"])
-                self.ids.result_label.text = f"Detected: {detected}"
+                self.ids.result_label.text = f"Detected:\n{detected}"
 
-                # Load pantry after short delay
-                Clock.schedule_once(lambda dt: setattr(self.manager, 'current', 'pantry'), 1.5)
+                Clock.schedule_once(
+                    lambda dt: setattr(self.manager, "current", "pantry"),
+                    1.5
+                )
 
             else:
-                self.ids.result_label.text = "Scan Failed"
+                self.ids.result_label.text = "Pantry scan failed"
 
         except Exception as e:
             self.ids.result_label.text = f"Error: {str(e)}"
@@ -171,18 +186,35 @@ class ScanReceiptScreen(Screen):
         self.manager.current = "scanOptions"
 
     def on_button_press(self):
-        # Update a label defined in the .kv file using its id
-        self.ids.result_label.text = "Receipt Scan In Progress..."
+        self.ids.result_label.text = "Scanning receipt..."
 
+        try:
+            files = {"file": ("receipt.jpg", b"fakereceipt")}
 
-# --- Root Widget ---
-# This is what build() returns. It holds the ScreenManager.
+            response = requests.post(f"{API_URL}/scan/receipt", files=files)
+
+            if response.status_code == 200:
+                data = response.json()
+
+                detected = ", ".join(data["items_detected"])
+                self.ids.result_label.text = f"Receipt Items:\n{detected}"
+
+                Clock.schedule_once(
+                    lambda dt: setattr(self.manager, "current", "pantry"),
+                    1.5
+                )
+
+            else:
+                self.ids.result_label.text = "Receipt scan failed"
+
+        except Exception as e:
+            self.ids.result_label.text = f"Error: {str(e)}"
+
 
 class RootWidget(BoxLayout):
-    pass  # Layout and children are fully defined in .kv
+    pass
 
 
-# --- App Class --- #
 class PantryRaidersApp(App):
     def build(self):
         print("App is building...")
