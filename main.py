@@ -3,6 +3,9 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import Screen
 from kivy.clock import Clock
 import requests
+import cv2
+from ultralytics import YOLO
+from kivy.graphics.texture import Texture
 
 
 API_URL = "http://127.0.0.1:8000"
@@ -147,32 +150,55 @@ class ScanPictureScreen(Screen):
     def on_enter(self):
         print("ScanPicture screen entered")
         self.ids.result_label.text = "Take a Picture of Your Pantry"
+        self.model = YOLO(r"C:/Users/gsmit/Documents/pantry_raiders/runs/detect/grocery_yolov82/weights/best.pt")
+        self.capture = cv2.VideoCapture(0)
+        Clock.schedule_interval(self.update, 1.0 / 30)
+
+    def on_leave(self):
+        Clock.unschedule(self.update)
+        if hasattr(self, 'capture'):
+            self.capture.release()
 
     def go_back(self):
         self.manager.current = "scanOptions"
 
+    def update(self, dt):
+        ret, frame = self.capture.read()
+        if not ret:
+            return
+
+        results = self.model(frame, conf=0.5, verbose=False)
+        annotated = results[0].plot()
+
+        buf = cv2.flip(annotated, 0).tobytes()
+        texture = Texture.create(size=(annotated.shape[1], annotated.shape[0]), colorfmt='bgr')
+        texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+        self.ids.camera_feed.texture = texture
+
     def on_button_press(self):
-        self.ids.result_label.text = "Scanning pantry..."
+        ret, frame = self.capture.read()
+        if not ret:
+            return
+
+        results = self.model(frame, conf=0.5, verbose=False)
+        detected_names = [
+            self.model.names[int(box.cls)]
+            for box in results[0].boxes
+        ]
+
+        if not detected_names:
+            self.ids.result_label.text = "Nothing detected"
+            return
 
         try:
-            files = {"file": ("image.jpg", b"fakeimage")}
-
-            response = requests.post(f"{API_URL}/scan/pantry", files=files)
-
+            response = requests.post(f"{API_URL}/scan/pantry", json={"items_detected": detected_names})
             if response.status_code == 200:
-                data = response.json()
-
-                detected = ", ".join(data["items_detected"])
-                self.ids.result_label.text = f"Detected:\n{detected}"
-
+                self.ids.result_label.text = f"Detected:\n{', '.join(detected_names)}"
                 Clock.schedule_once(
-                    lambda dt: setattr(self.manager, "current", "pantry"),
-                    1.5
+                    lambda dt: setattr(self.manager, "current", "pantry"), 1.5
                 )
-
             else:
-                self.ids.result_label.text = "Pantry scan failed"
-
+                self.ids.result_label.text = "Scan failed"
         except Exception as e:
             self.ids.result_label.text = f"Error: {str(e)}"
 
@@ -216,6 +242,8 @@ class RootWidget(BoxLayout):
 
 
 class PantryRaidersApp(App):
+    kv_file = "PantryRaiders.kv"
+
     def build(self):
         print("App is building...")
         return RootWidget()
